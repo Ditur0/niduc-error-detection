@@ -14,6 +14,9 @@ public class Main {
      *  TODO:
      *      - klasa GeneratorProbek naraize generuje probki i liste probek ale pamietac o tym ze te probki sa jeszcze dzielona na pakiety
      *      - moze jakied ladne README z przykladami zeby juz bylo do protfolio
+     *      - sumaAdlera
+     *      - sumaFletchera
+     *      - crc16
      */
 
     static void main() {
@@ -41,6 +44,5 @@ public class Main {
 
         // Odbieranie raportu
         raport.wyswietlPodsumowanieWTerminalu(parametry);
-        raport.zamknij(); // Zapisuje i zamyka plik CSV
     }
 }

@@ -3,16 +3,16 @@ package pl.edu.pwr.niduc.simulation;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Odpowiada za zbieranie statystyk, zapisywanie kazdego przypadku do pliku (wraz z ciagami bitow)
  * ladnie wypisuje w konsoli
  */
-public class Raport {
+public class Raport implements AutoCloseable {
 
-    private final Map<String, StatystykiAlgorytmu> statystykiMap = new HashMap<>();
+    private final Map<String, StatystykiAlgorytmu> statystykiMap = new LinkedHashMap<>();
     private PrintWriter csvWriter;
 
     public Raport(String nazwaPlikuCsv) {
@@ -29,7 +29,7 @@ public class Raport {
 
         // Pobierz albo utworz statystyki dla danego algorytmu
         statystykiMap.putIfAbsent(nazwaAlgorytmu, new StatystykiAlgorytmu());
-        StatystykiAlgorytmu statystyki = statystykiMap.get(nazwaAlgorytmu);
+        StatystykiAlgorytmu statystyki = statystykiMap.computeIfAbsent(nazwaAlgorytmu, k -> new StatystykiAlgorytmu());
 
         boolean kolizja = false;
 
@@ -79,7 +79,8 @@ public class Raport {
         }
     }
 
-    public void zamknij() {
+    @Override
+    public void close() throws Exception {
         if (csvWriter != null) {
             csvWriter.close();
             System.out.println("Zapisano pelne dane i bity do pliku CSV");

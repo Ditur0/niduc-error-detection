@@ -2,6 +2,7 @@ package pl.edu.pwr.niduc.core;
 
 /**
  * Klasa przechowujaca oryginalne dane oraz wyliczony dla nich kod kontrolny
+ * nasz RAMKA -> bity danych + bity zakodowane
  */
 public class Wynik {
 

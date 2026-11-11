@@ -2,6 +2,7 @@ package pl.edu.pwr.niduc.core;
 
 /**
  * Reprezentuje wynik po przejsciu przez zaszumiony kanal (z nalozonymi bledami)
+ * czyli nasza RAMKA ODEBRANA (moze zawierac bledy po przejsciu tunelu transmisyjnego)
  */
 public class Blad {
 
