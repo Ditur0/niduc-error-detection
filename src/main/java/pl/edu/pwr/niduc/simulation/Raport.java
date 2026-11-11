@@ -10,7 +10,7 @@ import java.util.Map;
  * Odpowiada za zbieranie statystyk, zapisywanie kazdego przypadku do pliku (wraz z ciagami bitow)
  * ladnie wypisuje w konsoli
  */
-public class Raport implements AutoCloseable {
+public class Raport {
 
     private final Map<String, StatystykiAlgorytmu> statystykiMap = new LinkedHashMap<>();
     private PrintWriter csvWriter;
@@ -53,6 +53,26 @@ public class Raport implements AutoCloseable {
         }
     }
 
+    public void zapiszPodsumowanieDoCsv(ParametrySymulacji parametry, String nazwaPliku) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(nazwaPliku))) {
+            pw.println("Algorytm;DlugoscProbki;P;WyslaneOgolem;Uszkodzone;Wykryte;Kolizje;Skutecznosc");
+
+            for (Map.Entry<String, StatystykiAlgorytmu> entry : statystykiMap.entrySet()) {
+                String nazwa = entry.getKey();
+                StatystykiAlgorytmu stat = entry.getValue();
+                double skutecznosc = stat.ramkiUszkodzone > 0 ?
+                        ((double) stat.bledyWykryte / stat.ramkiUszkodzone) * 100.0 : 100.0;
+
+                pw.printf("%s;%d;%f;%d;%d;%d;%d;%.2f%n",
+                        nazwa, parametry.dlugoscProbki, parametry.stopaBledu,
+                        parametry.iloscProbek, stat.ramkiUszkodzone,
+                        stat.bledyWykryte, stat.kolizje, skutecznosc);
+            }
+        } catch (IOException e) {
+            System.err.println("Blad zapisu podsumowania: " + e.getMessage());
+        }
+    }
+
     public void wyswietlPodsumowanieWTerminalu(ParametrySymulacji parametry) {
         System.out.println("\n=========================================");
         System.out.println("       RAPORT Z SYMULACJI (KONSOLA)      ");
@@ -79,8 +99,7 @@ public class Raport implements AutoCloseable {
         }
     }
 
-    @Override
-    public void close() throws Exception {
+    public void zamknij() {
         if (csvWriter != null) {
             csvWriter.close();
             System.out.println("Zapisano pelne dane i bity do pliku CSV");
