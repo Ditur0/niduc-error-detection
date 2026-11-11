@@ -11,11 +11,6 @@ import java.util.Random;
  */
 public class GeneratorBledow {
 
-    /**
-     * Pamiętaj o tym, aby psuć sklonowaną (skopiowaną) tablicę bitów, a nie referencję do oryginału.
-     * Zwróć obiekt Blad z zapisaną liczbą przekłamanych bitów.
-     */
-
     public Blad nakladajBledy(Wynik oryginalnyWynik, double stopaBledu, long seed) {
         Random random = new Random(seed);
         int iloscBledow = 0;
