@@ -4,6 +4,10 @@ import pl.edu.pwr.niduc.algorithms.AlgorytmBitParzystosci;
 import pl.edu.pwr.niduc.algorithms.AlgorytmDetekcji;
 import pl.edu.pwr.niduc.algorithms.AlgorytmInternetCheckSum;
 import pl.edu.pwr.niduc.algorithms.FabrykaCRC;
+import pl.edu.pwr.niduc.channel.BladLosowyBSC;
+import pl.edu.pwr.niduc.channel.BladWiazkowy;
+import pl.edu.pwr.niduc.channel.BladWielokrotnyK;
+import pl.edu.pwr.niduc.channel.ModelBledu;
 import pl.edu.pwr.niduc.simulation.ParametrySymulacji;
 import pl.edu.pwr.niduc.simulation.Raport;
 import pl.edu.pwr.niduc.simulation.SilnikSymulacji;
@@ -18,15 +22,10 @@ public class Main {
      *      - moze jakied ladne README z przykladami zeby juz bylo do protfolio
      *      - sumaAdlera
      *      - sumaFletchera
-     *      - Implementacja kodow cyklicznych CRC
-     *
-     *      - dedykowane klasy bledow (do przeanalizowania konrektych rodzajow bledow)
-     *      takich jak bledy podwojne i wielokrotne (k-krotne), wiazki bledow
-     *      czyli dopisac dla klast GeneratorBledow
-     *
      *      -zroznicowac dlugosci ramek bo w zadaniu jet napisane ze stopien wielomianu CRC powinien rosnac wraz z dlugoscia chronionego bloku
-     *      czyli kod testujacy musi przeprowadzic symulacje dla roznych wartosci parametru 'dlugoscProbki'
-     *      np. krotkich wiadomosciach 64 bity oraz duzych blokow danych do 1500 bajtow ktore sa wykorzystywane w ethernecie
+     *          czyli kod testujacy musi przeprowadzic symulacje dla roznych wartosci parametru 'dlugoscProbki'
+     *          np. krotkich wiadomosciach 64 bity oraz duzych blokow danych do 1500 bajtow ktore sa wykorzystywane w ethernecie
+     *      - Zrobic lepszy raport zeby byly dokladne dane zapisywane takie jakie chcemy zeby zrobic z tego wykresy
      */
 
     static void main() {
@@ -34,8 +33,7 @@ public class Main {
         // Definiujemy parametry
         ParametrySymulacji parametry = new ParametrySymulacji(
                 10000,
-                64,
-                0.05,
+                128,
                 12345L
         );
 
@@ -50,9 +48,22 @@ public class Main {
                 FabrykaCRC.stworzCrc32()
         );
 
+        // Inicjalizacja roznych modeli bledow dla algorytmow
+        List<ModelBledu> modeleBledow = List.of(
+                new BladWielokrotnyK(1),
+                new BladWielokrotnyK(2),
+                new BladWielokrotnyK(3),
+                new BladWielokrotnyK(4),
+                new BladWiazkowy(8),
+                new BladWiazkowy(12),
+                new BladWiazkowy(16),
+                new BladWiazkowy(24),
+                new BladLosowyBSC(0.01)
+        );
+
         // Inicjalizacja narzedzi
         Raport raport = new Raport("wyniki_symulacji.csv");
-        SilnikSymulacji silnik = new SilnikSymulacji(parametry, algorytmy);
+        SilnikSymulacji silnik = new SilnikSymulacji(parametry, algorytmy, modeleBledow);
 
         silnik.uruchom(raport);
 
