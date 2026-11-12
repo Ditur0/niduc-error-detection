@@ -1,7 +1,6 @@
 package pl.edu.pwr.niduc.simulation;
 
 import pl.edu.pwr.niduc.algorithms.AlgorytmDetekcji;
-import pl.edu.pwr.niduc.channel.GeneratorBledow;
 import pl.edu.pwr.niduc.channel.GeneratorProbek;
 import pl.edu.pwr.niduc.channel.ModelBledu;
 import pl.edu.pwr.niduc.core.Blad;
@@ -26,11 +25,12 @@ public class SilnikSymulacji {
         this.modeleBledow = modeleBledow;
     }
 
+
     public void uruchom(Raport raport) {
         System.out.println("Generowanie " + parametry.iloscProbek + " probek bazowych...");
         List<boolean[]> listaProbek = generatorProbek.generujProbki(parametry.iloscProbek, parametry.dlugoscProbki);
 
-        System.out.println("Uruchamianie silnika symulacji dla poszczegolnych algorytmów...\n");
+        System.out.println("Uruchamianie silnika symulacji dla poszczegolnych algorytmów...\n  " + listaProbek.size());
 
         for (ModelBledu model : modeleBledow) {
             System.out.println("=== Model bledu: " + model.getNazwa() + " ===");
@@ -60,7 +60,9 @@ public class SilnikSymulacji {
                             odebrane.getIloscBledowNalozonych(),
                             wykrytoBlad,
                             zakodowane.getRamkaTransmisyjna(),
-                            odebrane.getWynikZBledami().getRamkaTransmisyjna()
+                            odebrane.getWynikZBledami().getRamkaTransmisyjna(),
+                            zakodowane,
+                            odebrane
                     );
                 }
             }

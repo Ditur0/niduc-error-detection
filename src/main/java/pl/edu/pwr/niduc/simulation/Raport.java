@@ -1,9 +1,15 @@
 package pl.edu.pwr.niduc.simulation;
 
+import pl.edu.pwr.niduc.UI.InformacjeOProbce;
+import pl.edu.pwr.niduc.core.Blad;
+import pl.edu.pwr.niduc.core.Wynik;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,6 +21,8 @@ public class Raport {
     // Klucz laczacy algorytm z konkretnym modelem bledu
     private record KluczStatystyk(String algorytm, String modelBledu) {}
 
+    List<InformacjeOProbce> listaInformacji;
+
     private final Map<KluczStatystyk, StatystykiAlgorytmu> statystykiMap = new LinkedHashMap<>();
     private PrintWriter csvWriter;
 
@@ -25,11 +33,13 @@ public class Raport {
         } catch (IOException e) {
             System.err.println("Nie udalo sie otworzyc pliku raportu: " + e.getMessage());
         }
+
+        listaInformacji = new ArrayList<>();
     }
 
     public void zarejestrujWynik(String nazwaAlgorytmu, String nazwaModeluBledu, int idProbki,
                                  int faktyczneBledy, boolean wykrytoBlad,
-                                 boolean[] bityZakodowane, boolean[] bityOdebrane) {
+                                 boolean[] bityZakodowane, boolean[] bityOdebrane, Wynik wynik, Blad blad) {
 
         KluczStatystyk klucz = new KluczStatystyk(nazwaAlgorytmu, nazwaModeluBledu);
         StatystykiAlgorytmu statystyki = statystykiMap.computeIfAbsent(klucz, k -> new StatystykiAlgorytmu());
@@ -46,8 +56,11 @@ public class Raport {
             }
         }
 
+        listaInformacji.add(new InformacjeOProbce(idProbki, wynik, blad, faktyczneBledy, wykrytoBlad, kolizja));
+
+
         // Zapis szczegolowy (tylko ramki uszkodzone)
-        if (csvWriter != null && faktyczneBledy > 0) {
+        if (csvWriter != null && faktyczneBledy > -1) {
             String bityWysl = bityNaString(bityZakodowane);
             String bityOdeb = bityNaString(bityOdebrane);
 
@@ -108,6 +121,11 @@ public class Raport {
             csvWriter.close();
             System.out.println("Zapisano pelne dane i bity do szczegolowego pliku CSV.");
         }
+    }
+
+    public List<InformacjeOProbce> getDane()
+    {
+        return listaInformacji;
     }
 
     private static class StatystykiAlgorytmu {

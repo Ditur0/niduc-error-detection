@@ -16,4 +16,7 @@ public class Blad {
 
     public Wynik getWynikZBledami() { return wynikZBledami; }
     public int getIloscBledowNalozonych() { return iloscBledowNalozonych; }
+
+    public boolean[] getProbka() { return wynikZBledami.getProbka(); }
+    public boolean[] getKod() { return wynikZBledami.getKod(); }
 }
