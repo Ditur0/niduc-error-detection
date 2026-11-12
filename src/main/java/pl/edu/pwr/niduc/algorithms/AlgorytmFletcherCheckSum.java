@@ -48,7 +48,7 @@ public class AlgorytmFletcherCheckSum implements AlgorytmDetekcji {
             sumB = (sumB + sumA) % modul;
         }
 
-        long wartosc = ((long) sumB << 8) | sumA;
+        long wartosc = ((long) sumB << bitowWBloku) | sumA;
 
         boolean[] kod = new boolean[bitowKodu];
         for (int i = 0; i < bitowKodu; i++) {
