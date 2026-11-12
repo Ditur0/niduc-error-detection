@@ -32,6 +32,7 @@ public class AlgorytmFletcherCheckSum implements AlgorytmDetekcji {
         return "Fletcher Checksum (" + bitowKodu + "-bit)";
     }
 
+    //logika sumy kontrolnej
     private boolean[] obliczKod(boolean[] probka) {
         int sumA = 0;
         int sumB = 0;

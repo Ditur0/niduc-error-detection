@@ -32,6 +32,7 @@ public class AlgorytmAdlerCheckSum implements AlgorytmDetekcji {
         return "Adler Checksum (" + bitowKodu + "-bit)";
     }
 
+    //logika sumy kontrolnej
     private boolean[] obliczKod(boolean[] probka) {
         int sumA = 1;
         int sumB = 0;
@@ -57,6 +58,7 @@ public class AlgorytmAdlerCheckSum implements AlgorytmDetekcji {
         return kod;
     }
 
+    //metody pomocnicze
     private static int najwiekszaLiczbaPierwszaPonizej(int granica) {
         for (int n = granica - 1; n >= 2; n--) {
             if (czyPierwsza(n)) {
