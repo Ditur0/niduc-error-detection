@@ -23,8 +23,9 @@ public class Main {
      *      - sumaAdlera
      *      - sumaFletchera
      *      -zroznicowac dlugosci ramek bo w zadaniu jet napisane ze stopien wielomianu CRC powinien rosnac wraz z dlugoscia chronionego bloku
-     *      czyli kod testujacy musi przeprowadzic symulacje dla roznych wartosci parametru 'dlugoscProbki'
-     *      np. krotkich wiadomosciach 64 bity oraz duzych blokow danych do 1500 bajtow ktore sa wykorzystywane w ethernecie
+     *          czyli kod testujacy musi przeprowadzic symulacje dla roznych wartosci parametru 'dlugoscProbki'
+     *          np. krotkich wiadomosciach 64 bity oraz duzych blokow danych do 1500 bajtow ktore sa wykorzystywane w ethernecie
+     *      - Zrobic lepszy raport zeby byly dokladne dane zapisywane takie jakie chcemy zeby zrobic z tego wykresy
      */
 
     static void main() {
