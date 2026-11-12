@@ -62,6 +62,7 @@ public class Main {
                 new BladLosowyBSC(0.01)
         );
 
+
         // Inicjalizacja narzedzi
         Raport raport = new Raport("wyniki_symulacji.csv");
         SilnikSymulacji silnik = new SilnikSymulacji(parametry, algorytmy, modeleBledow);
@@ -72,5 +73,7 @@ public class Main {
         raport.wyswietlPodsumowanieWTerminalu(parametry);
         raport.zapiszPodsumowanieDoCsv(parametry, "dane_do_wykresow.csv");
         raport.zamknij();
+
+
     }
 }
