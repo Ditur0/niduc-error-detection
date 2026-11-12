@@ -12,24 +12,27 @@ import java.util.Map;
  */
 public class Raport {
 
-    private final Map<String, StatystykiAlgorytmu> statystykiMap = new LinkedHashMap<>();
+    // Klucz laczacy algorytm z konkretnym modelem bledu
+    private record KluczStatystyk(String algorytm, String modelBledu) {}
+
+    private final Map<KluczStatystyk, StatystykiAlgorytmu> statystykiMap = new LinkedHashMap<>();
     private PrintWriter csvWriter;
 
     public Raport(String nazwaPlikuCsv) {
         try {
             csvWriter = new PrintWriter(new FileWriter(nazwaPlikuCsv));
-            csvWriter.println("Algorytm;IdProbki;NarzuconeBledy;CzyWykryto;CzyKolizja;BityZakodowane;BityOdebrane");
+            csvWriter.println("Algorytm;ModelBledu;IdProbki;NarzuconeBledy;CzyWykryto;CzyKolizja;BityZakodowane;BityOdebrane");
         } catch (IOException e) {
             System.err.println("Nie udalo sie otworzyc pliku raportu: " + e.getMessage());
         }
     }
 
-    // Metoda wywolywana przez Silnik po każdej probce
-    public void zarejestrujWynik(String nazwaAlgorytmu, int idProbki, int faktyczneBledy, boolean wykrytoBlad, boolean[] bityZakodowane, boolean[] bityOdebrane) {
+    public void zarejestrujWynik(String nazwaAlgorytmu, String nazwaModeluBledu, int idProbki,
+                                 int faktyczneBledy, boolean wykrytoBlad,
+                                 boolean[] bityZakodowane, boolean[] bityOdebrane) {
 
-        // Pobierz albo utworz statystyki dla danego algorytmu
-        statystykiMap.putIfAbsent(nazwaAlgorytmu, new StatystykiAlgorytmu());
-        StatystykiAlgorytmu statystyki = statystykiMap.computeIfAbsent(nazwaAlgorytmu, k -> new StatystykiAlgorytmu());
+        KluczStatystyk klucz = new KluczStatystyk(nazwaAlgorytmu, nazwaModeluBledu);
+        StatystykiAlgorytmu statystyki = statystykiMap.computeIfAbsent(klucz, k -> new StatystykiAlgorytmu());
 
         boolean kolizja = false;
 
@@ -43,31 +46,33 @@ public class Raport {
             }
         }
 
-        // Zapis do pliku CSV (teraz tylko ramki uszkodzone zeby nie zapychac CSV idealnymi transimsjami -> MOZNA TO USUNAC)
+        // Zapis szczegolowy (tylko ramki uszkodzone)
         if (csvWriter != null && faktyczneBledy > 0) {
             String bityWysl = bityNaString(bityZakodowane);
             String bityOdeb = bityNaString(bityOdebrane);
 
-            csvWriter.printf("%s;%d;%d;%b;%b;%s;%s%n",
-                    nazwaAlgorytmu, idProbki, faktyczneBledy, wykrytoBlad, kolizja, bityWysl, bityOdeb);
+            csvWriter.printf("%s;%s;%d;%d;%b;%b;%s;%s%n",
+                    nazwaAlgorytmu, nazwaModeluBledu, idProbki, faktyczneBledy,
+                    wykrytoBlad, kolizja, bityWysl, bityOdeb);
         }
     }
 
     public void zapiszPodsumowanieDoCsv(ParametrySymulacji parametry, String nazwaPliku) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(nazwaPliku))) {
-            pw.println("Algorytm;DlugoscProbki;P;WyslaneOgolem;Uszkodzone;Wykryte;Kolizje;Skutecznosc");
+            pw.println("Algorytm;ModelBledu;DlugoscProbki;WyslaneOgolem;Uszkodzone;Wykryte;Kolizje;Skutecznosc");
 
-            for (Map.Entry<String, StatystykiAlgorytmu> entry : statystykiMap.entrySet()) {
-                String nazwa = entry.getKey();
+            for (Map.Entry<KluczStatystyk, StatystykiAlgorytmu> entry : statystykiMap.entrySet()) {
+                KluczStatystyk klucz = entry.getKey();
                 StatystykiAlgorytmu stat = entry.getValue();
                 double skutecznosc = stat.ramkiUszkodzone > 0 ?
                         ((double) stat.bledyWykryte / stat.ramkiUszkodzone) * 100.0 : 100.0;
 
-                pw.printf("%s;%d;%f;%d;%d;%d;%d;%.2f%n",
-                        nazwa, parametry.dlugoscProbki, parametry.stopaBledu,
+                pw.printf("%s;%s;%d;%d;%d;%d;%d;%.4f%n",
+                        klucz.algorytm(), klucz.modelBledu(), parametry.dlugoscProbki,
                         parametry.iloscProbek, stat.ramkiUszkodzone,
                         stat.bledyWykryte, stat.kolizje, skutecznosc);
             }
+            System.out.println("Zapisano podsumowanie do pliku: " + nazwaPliku);
         } catch (IOException e) {
             System.err.println("Blad zapisu podsumowania: " + e.getMessage());
         }
@@ -78,22 +83,21 @@ public class Raport {
         System.out.println("       RAPORT Z SYMULACJI (KONSOLA)      ");
         System.out.println("=========================================");
         System.out.println("Wyslane probki ogolem:  " + parametry.iloscProbek);
-        System.out.println("Długosc probki danych:  " + parametry.dlugoscProbki + " bitow");
-        System.out.println("Prawdopodobienstwo (p): " + parametry.stopaBledu);
+        System.out.println("Dlugosc probki danych:  " + parametry.dlugoscProbki + " bitow");
         System.out.println("-----------------------------------------");
 
-        for (Map.Entry<String, StatystykiAlgorytmu> entry : statystykiMap.entrySet()) {
-            String nazwa = entry.getKey();
+        for (Map.Entry<KluczStatystyk, StatystykiAlgorytmu> entry : statystykiMap.entrySet()) {
+            KluczStatystyk klucz = entry.getKey();
             StatystykiAlgorytmu stat = entry.getValue();
 
-            System.out.println("Algorytm: " + nazwa);
+            System.out.printf("Algorytm: %-26s | Model: %s%n", klucz.algorytm(), klucz.modelBledu());
             System.out.println(" - Ramki uszkodzone:        " + stat.ramkiUszkodzone);
             System.out.println(" - Wykryte:                 " + stat.bledyWykryte);
             System.out.println(" - Niewykryte (KOLIZJE):    " + stat.kolizje);
 
             if (stat.ramkiUszkodzone > 0) {
                 double skutecznosc = ((double) stat.bledyWykryte / stat.ramkiUszkodzone) * 100.0;
-                System.out.printf(" - Skutecznosc detekcji:    %.2f%%%n", skutecznosc);
+                System.out.printf(" - Skutecznosc detekcji:    %.4f%%%n", skutecznosc);
             }
             System.out.println("-----------------------------------------");
         }
@@ -102,7 +106,7 @@ public class Raport {
     public void zamknij() {
         if (csvWriter != null) {
             csvWriter.close();
-            System.out.println("Zapisano pelne dane i bity do pliku CSV");
+            System.out.println("Zapisano pelne dane i bity do szczegolowego pliku CSV.");
         }
     }
 
@@ -112,7 +116,6 @@ public class Raport {
         int kolizje = 0;
     }
 
-    // Pomocnicza do zamiany z bool[true,false,false...] na "10110"
     private String bityNaString(boolean[] bity) {
         StringBuilder sb = new StringBuilder(bity.length);
         for (boolean b : bity) {

@@ -3,26 +3,27 @@ package pl.edu.pwr.niduc.simulation;
 import pl.edu.pwr.niduc.algorithms.AlgorytmDetekcji;
 import pl.edu.pwr.niduc.channel.GeneratorBledow;
 import pl.edu.pwr.niduc.channel.GeneratorProbek;
+import pl.edu.pwr.niduc.channel.ModelBledu;
 import pl.edu.pwr.niduc.core.Blad;
 import pl.edu.pwr.niduc.core.Wynik;
 
 import java.util.List;
 
 /**
- * Wykonawca calej symulacji
+ * Wykonawca calej symulacji dla wielu algorytmow i modeli bledow
  */
 public class SilnikSymulacji {
 
     private final ParametrySymulacji parametry;
     private final List<AlgorytmDetekcji> algorytmyDoSprawdzenia;
     private final GeneratorProbek generatorProbek;
-    private final GeneratorBledow generatorBledow;
+    private final List<ModelBledu> modeleBledow;
 
-    public SilnikSymulacji(ParametrySymulacji parametry, List<AlgorytmDetekcji> algorytmy) {
+    public SilnikSymulacji(ParametrySymulacji parametry, List<AlgorytmDetekcji> algorytmy, List<ModelBledu> modeleBledow) {
         this.parametry = parametry;
         this.algorytmyDoSprawdzenia = algorytmy;
         this.generatorProbek = new GeneratorProbek(parametry.bazaSeed);
-        this.generatorBledow = new GeneratorBledow();
+        this.modeleBledow = modeleBledow;
     }
 
     public void uruchom(Raport raport) {
@@ -31,32 +32,37 @@ public class SilnikSymulacji {
 
         System.out.println("Uruchamianie silnika symulacji dla poszczegolnych algorytmów...\n");
 
-        for (AlgorytmDetekcji algorytm : algorytmyDoSprawdzenia) {
-            System.out.println("Przetwarzanie transmisji dla algorytmu: " + algorytm.getNazwa());
+        for (ModelBledu model : modeleBledow) {
+            System.out.println("=== Model bledu: " + model.getNazwa() + " ===");
 
-            for (int i = 0; i < listaProbek.size(); i++) {
-                boolean[] oryginalnaProbka = listaProbek.get(i);
+            for (AlgorytmDetekcji algorytm : algorytmyDoSprawdzenia) {
+                System.out.println("  -> Testowanie: " + algorytm.getNazwa());
 
-                // Kodowanie
-                Wynik zakodowane = algorytm.koduj(oryginalnaProbka);
+                for (int i = 0; i < listaProbek.size(); i++) {
+                    boolean[] oryginalnaProbka = listaProbek.get(i);
 
-                // Kanal transmisyjny (nakladanie bledow z zachowanie seeda)
-                long seedDlaRamki = parametry.bazaSeed + i;
-                Blad odebrane = generatorBledow.nakladajBledy(zakodowane, parametry.stopaBledu, seedDlaRamki);
+                    // Kodowanie
+                    Wynik zakodowane = algorytm.koduj(oryginalnaProbka);
 
-                // Odbior i weryfikacja
-                boolean weryfikacja = algorytm.sprawdz(odebrane.getWynikZBledami());
-                boolean wykrytoBlad = !weryfikacja;
+                    // Kanal transmisyjny (nakladanie bledow z zachowanie seeda)
+                    long seedDlaRamki = parametry.bazaSeed + i;
+                    Blad odebrane = model.zaszum(zakodowane, seedDlaRamki);
 
-                // Przekazanie danych do raportu
-                raport.zarejestrujWynik(
-                        algorytm.getNazwa(),
-                        i,
-                        odebrane.getIloscBledowNalozonych(),
-                        wykrytoBlad,
-                        zakodowane.getRamkaTransmisyjna(),
-                        odebrane.getWynikZBledami().getRamkaTransmisyjna()
-                );
+                    // Odbior i weryfikacja
+                    boolean weryfikacja = algorytm.sprawdz(odebrane.getWynikZBledami());
+                    boolean wykrytoBlad = !weryfikacja;
+
+                    // Przekazanie danych do raportu
+                    raport.zarejestrujWynik(
+                            algorytm.getNazwa(),
+                            model.getNazwa(),
+                            i,
+                            odebrane.getIloscBledowNalozonych(),
+                            wykrytoBlad,
+                            zakodowane.getRamkaTransmisyjna(),
+                            odebrane.getWynikZBledami().getRamkaTransmisyjna()
+                    );
+                }
             }
         }
     }
