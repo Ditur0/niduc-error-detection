@@ -3,6 +3,7 @@ package pl.edu.pwr.niduc;
 import pl.edu.pwr.niduc.algorithms.AlgorytmBitParzystosci;
 import pl.edu.pwr.niduc.algorithms.AlgorytmDetekcji;
 import pl.edu.pwr.niduc.algorithms.AlgorytmInternetCheckSum;
+import pl.edu.pwr.niduc.algorithms.FabrykaCRC;
 import pl.edu.pwr.niduc.simulation.ParametrySymulacji;
 import pl.edu.pwr.niduc.simulation.Raport;
 import pl.edu.pwr.niduc.simulation.SilnikSymulacji;
@@ -41,9 +42,12 @@ public class Main {
         // Rejestracja algorytmow ktore chcemy porownac
         List<AlgorytmDetekcji> algorytmy = List.of(
                 new AlgorytmBitParzystosci(),
-                new AlgorytmInternetCheckSum()
-                // new AlgorytmCRC16(),
-                // new AlgorytmInternetCheckSum()
+                new AlgorytmInternetCheckSum(),
+                FabrykaCRC.stworzCrc8Atm(),
+                FabrykaCRC.stworzCrc16(),
+                FabrykaCRC.stworzCrc12(),
+                FabrykaCRC.stworzCrc16Ccitt(),
+                FabrykaCRC.stworzCrc32()
         );
 
         // Inicjalizacja narzedzi
