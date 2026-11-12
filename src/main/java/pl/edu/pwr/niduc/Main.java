@@ -1,9 +1,6 @@
 package pl.edu.pwr.niduc;
 
-import pl.edu.pwr.niduc.algorithms.AlgorytmBitParzystosci;
-import pl.edu.pwr.niduc.algorithms.AlgorytmDetekcji;
-import pl.edu.pwr.niduc.algorithms.AlgorytmInternetCheckSum;
-import pl.edu.pwr.niduc.algorithms.FabrykaCRC;
+import pl.edu.pwr.niduc.algorithms.*;
 import pl.edu.pwr.niduc.channel.BladLosowyBSC;
 import pl.edu.pwr.niduc.channel.BladWiazkowy;
 import pl.edu.pwr.niduc.channel.BladWielokrotnyK;
@@ -45,7 +42,11 @@ public class Main {
                 FabrykaCRC.stworzCrc16(),
                 FabrykaCRC.stworzCrc12(),
                 FabrykaCRC.stworzCrc16Ccitt(),
-                FabrykaCRC.stworzCrc32()
+                FabrykaCRC.stworzCrc32(),
+                new AlgorytmAdlerCheckSum(8),
+                new AlgorytmAdlerCheckSum(16),
+                new AlgorytmFletcherCheckSum(8),
+                new AlgorytmFletcherCheckSum(16)
         );
 
         // Inicjalizacja roznych modeli bledow dla algorytmow
